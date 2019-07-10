@@ -1,3 +1,4 @@
 /data/*
 !/data/Kickstarter000.csv
 !/data/Kickstarter001.csv
+/*.pkl
