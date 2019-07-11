@@ -76,4 +76,13 @@ droplist = ['friends', 'is_backing', 'is_starred', 'permissions',
         'source_url'] #only discover category url, not useful for analysis since we already have category
 df.drop(droplist, axis = 1, inplace = True)
 
+
+## Pulling the URLs from 'web' column for easier processing
+def url_pull(x):
+    return json.loads(x)['web']['project'].split('?')[0]
+
+df['web_url'] = df['urls'].apply(url_pull)
+
+
+
 df.to_pickle('kickstarter.pkl')
