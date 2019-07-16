@@ -12,7 +12,7 @@ import numpy as np
 def parser(url):
     try:
         result = urllib.request.urlopen(url)
-        soup = BeautifulSoup(result.read())
+        soup = BeautifulSoup(result.read(), features="lxml")
         desc = soup.find('div', 'full-description')
 
         textfield = '\n'.join([item.text for item in desc.find_all(['p','ul'])])
@@ -37,9 +37,11 @@ mini = df[:40]
 ## library to track progresses in command line
 tqdm.pandas()
 
-df['description'] = df['web_url'].progress_apply(parser)
+mini['parsed'] = mini['web_url'].progress_apply(parser)
 
-df.to_pickle('kickstarter_desc.pkl')
+
+
+mini.to_pickle('kickstarter_desc_mini.pkl')
 
 
 ## Send an email when process is finished
@@ -49,7 +51,7 @@ context = ssl.create_default_context()
 msg = """\
 Subject: End of Script
 
-Your Script had ended."""
+Your Script had ended(MINI)."""
 
 
 email = 'EMAIL@EMAIL.COM'
