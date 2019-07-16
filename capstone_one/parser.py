@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import urllib.request
 from tqdm import tqdm
 import numpy as np
+import re
 
 
 ## The main parse function. This pulls the p and ul tags in a description field
@@ -13,20 +14,31 @@ def parser(url):
     try:
         result = urllib.request.urlopen(url)
         soup = BeautifulSoup(result.read(), features = 'html.parser'))
-        desc = soup.find('div', 'full-description')
 
+        # Pulling the description fields
+        desc = soup.find('div', 'full-description')
         textfield = '\n'.join([item.text for item in desc.find_all(['p','ul'])])
 
+        # Pulling the image counts and video counts
         img = len(desc.find_all('img'))
         vid = len(desc.find_all('video'))
-
         img_count = img - vid
 
-        return(textfield, img_count, vid)
+        # Pulling the rewards for the project into a single list
+        pledges = []
+        for pledge in soup.find_all('div', 'pledge__info'):
+            amount = pledge.find('span', 'money').text
+            i = re.search("[0-9]", amount)
+            pledge = amount[i.start():]
+            pledge = int(pledge.replace(',', ''))
+            pledges.append(pledge)
+
+
+        return(textfield, img_count, vid, pledges)
     except AttributeError:
-        return ('This Error: Missing Description', np.nan, np.nan)
+        return ('This Error: Missing Description', np.nan, np.nan, None)
     except Exception as e:
-        return ("This Error: " + str(e), np.nan, np.nan)
+        return ("This Error: " + str(e), np.nan, np.nan, None)
 
 
 ## Start of script
