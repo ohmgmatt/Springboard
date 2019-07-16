@@ -24,9 +24,9 @@ def parser(url):
 
         return(textfield, img_count, vid)
     except AttributeError:
-        return ('Missing Description', np.nan, np.nan)
-    except:
-        return ('Wrong connection', np.nan, np.nan)
+        return ('This Error: Missing Description', np.nan, np.nan)
+    except Exception as e:
+        return ("This Error: " + str(e), np.nan, np.nan)
 
 
 ## Start of script
