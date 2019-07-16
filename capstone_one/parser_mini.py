@@ -33,13 +33,10 @@ def parser(url):
 
 df = pd.read_pickle('kickstarter.pkl')
 mini = df[:40]
-
 ## library to track progresses in command line
 tqdm.pandas()
 
 mini['parsed'] = mini['web_url'].progress_apply(parser)
-
-
 
 mini.to_pickle('kickstarter_desc_mini.pkl')
 

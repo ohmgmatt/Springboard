@@ -12,7 +12,7 @@ import numpy as np
 def parser(url):
     try:
         result = urllib.request.urlopen(url)
-        soup = BeautifulSoup(result.read())
+        soup = BeautifulSoup(result.read(), features = 'html.parser'))
         desc = soup.find('div', 'full-description')
 
         textfield = '\n'.join([item.text for item in desc.find_all(['p','ul'])])
@@ -32,7 +32,6 @@ def parser(url):
 ## Start of script
 
 df = pd.read_pickle('kickstarter.pkl')
-mini = df[:40]
 
 ## library to track progresses in command line
 tqdm.pandas()
