@@ -7,37 +7,22 @@ from tqdm import tqdm
 import numpy as np
 import re
 
-## Set up email
+
+## Setting up email connection
 port = 465
-password = 'PASSWORD'
+password = 'creamery'
 context = ssl.create_default_context()
-email = 'EMAIL@EMAIL.COM'
+email = 'bonilla.matthew44@gmail.com'
 
+with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+    server.login(email, password)
+    server.sendmail(email, email, msg)
 
-## Set up error counting
-err_count = 0
-multi_count = 1
-
-## This function will send an email at 10,100,1000,10000 errors.
-def errorCheck():
-    err_count +=1
-    if err_count >= 10 ** multi_count:
-        error_msg = "There are {} errors".format(err_count)
-        with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-            server.login(email, password)
-            server.sendmail(email, email, error_msg)
-        err_count = 0
-        multi_count += 1
-
-
-## The main parse function. This pulls in:
-## the p tags and ul tags
-## the img count and video counts
-## the pledge amount information
+## The main parse function. This pulls the p and ul tags in a description field
 def parser(url):
     try:
         result = urllib.request.urlopen(url)
-        soup = BeautifulSoup(result.read(), features = 'html.parser'))
+        soup = BeautifulSoup(result.read(), features = 'html.parser')
 
         # Pulling the description fields
         desc = soup.find('div', 'full-description')
@@ -59,34 +44,44 @@ def parser(url):
 
 
         return(textfield, img_count, vid, pledges)
-
     except AttributeError:
-        errorCheck()
         return ('This Error: Missing Description', np.nan, np.nan, None)
-
     except Exception as e:
-        errorCheck()
+        msg = """\
+        Subject: Error Received
+
+        This is a notification that your script has received an error. Please
+        check after this has finished"""
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+            server.login(email, password)
+            server.sendmail(email, email, msg)
+
         return ("This Error: " + str(e), np.nan, np.nan, None)
+
 
 
 ## Start of script
 
 df = pd.read_pickle('kickstarter.pkl')
+mini = df[5000:5040]
 
 ## library to track progresses in command line
 tqdm.pandas()
 
-df['description'] = df['web_url'].progress_apply(parser)
+mini['description'] = mini['web_url'].progress_apply(parser)
 
-df.to_pickle('kickstarter_desc.pkl')
+mini.to_pickle('kickstarter_desc_small.pkl')
 
 
-
-## Email when process is finished
+## Send an email when process is finished
 ending = """\
 Subject: End of Script
 
-Your Script had ended."""
+Your Script had ended.(testing)"""
+
+
+email = 'bonilla.matthew44@gmail.com'
 
 with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
     server.login(email, password)
