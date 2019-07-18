@@ -20,6 +20,12 @@ multi_count = 1
 
 ## This function will send an email at 10,100,1000,10000 errors.
 def errorCheck():
+    global err_count
+    global multi_count
+    global port
+    global context
+    global email
+    
     err_count +=1
     if err_count >= 10 ** multi_count:
         error_msg = "There are {} errors".format(err_count)
@@ -37,7 +43,7 @@ def errorCheck():
 def parser(url):
     try:
         result = urllib.request.urlopen(url)
-        soup = BeautifulSoup(result.read(), features = 'html.parser'))
+        soup = BeautifulSoup(result.read(), features = 'html.parser')
 
         # Pulling the description fields
         desc = soup.find('div', 'full-description')
@@ -57,7 +63,6 @@ def parser(url):
             pledge = int(pledge.replace(',', ''))
             pledges.append(pledge)
 
-
         return(textfield, img_count, vid, pledges)
 
     except AttributeError:
@@ -67,7 +72,6 @@ def parser(url):
     except Exception as e:
         errorCheck()
         return ("This Error: " + str(e), np.nan, np.nan, None)
-
 
 ## Start of script
 
@@ -79,7 +83,6 @@ tqdm.pandas()
 df['description'] = df['web_url'].progress_apply(parser)
 
 df.to_pickle('kickstarter_desc.pkl')
-
 
 
 ## Email when process is finished
